@@ -23,14 +23,14 @@ $router->get('appKey', function () {
 // route for creating access_token
 $router->post('accessToken', 'UserController@createAccessToken');
 
-$router->group([
-        'prefix' => config('app.api_prefix') . config('app.api_version'),
-        // 'middleware' => ['auth:api', 'throttle:60']
-    ], function ($router) {
+$router->group(['prefix' => config('app.api_prefix') . config('app.api_version')], function ($router) {
 
     $router->get('users', 'UserController@index');
-    $router->post('users', 'UserController@store');
     $router->get('users/{id}', 'UserController@show');
-    $router->put('users/{id}', 'UserController@update');
-    $router->delete('users/{id}', 'UserController@destroy');
+
+    $router->group(['middleware' => ['auth:api', 'throttle:60']], function ($router) {
+        $router->post('users', 'UserController@store');
+        $router->put('users/{id}', 'UserController@update');
+        $router->delete('users/{id}', 'UserController@destroy');
+    });
 });

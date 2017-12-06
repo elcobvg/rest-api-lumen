@@ -80,6 +80,7 @@ $app->middleware([
 
 $app->routeMiddleware([
     'auth' => App\Http\Middleware\Authenticate::class,
+    'throttle' => App\Http\Middleware\ThrottleRequests::class
 ]);
 
 /*
@@ -103,6 +104,7 @@ $app->register(Jenssegers\Mongodb\MongodbServiceProvider::class);
 $app->register(MoeenBasra\LaravelPassportMongoDB\PassportServiceProvider::class);
 $app->register(Dusterio\LumenPassport\PassportServiceProvider::class);
 $app->register(Barryvdh\Cors\LumenServiceProvider::class);
+$app->register(Appzcoder\LumenRoutesList\RoutesCommandServiceProvider::class);
 
 $app->withEloquent();
 

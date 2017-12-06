@@ -4,7 +4,6 @@ namespace App\Repositories;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Database\Eloquent\Model;
 use App\Events\UserEvents\UserCreatedEvent;
 use App\Repositories\Contracts\UserRepository as UserRepositoryContract;
 

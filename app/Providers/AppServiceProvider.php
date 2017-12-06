@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use App\Extensions\Passport;
 use App\Extensions\LengthAwarePaginator;
 
 class AppServiceProvider extends ServiceProvider
@@ -20,5 +21,7 @@ class AppServiceProvider extends ServiceProvider
             ->give(function () {
                 return \App\Extensions\LengthAwarePaginator::class;
             });
+
+        // Passport::ignoreMigrations();
     }
 }

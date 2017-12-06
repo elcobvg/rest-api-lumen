@@ -28,51 +28,46 @@ interface BaseRepository
     /**
      * Get all Models from storage with relationships
      *
-     * @param  array    $with
      * @param  array    $columns
      * @return Collection
      */
-    public function get(array $with = [], array $columns = ['*']);
+    public function get(array $columns = ['*']);
 
     /**
      * Get Model from storage
      *
      * @param  mixed    $id
-     * @param  array    $with
      * @return Model
      */
-    public function find($id, array $with = []);
+    public function find($id);
 
     /**
      * Get a set of Models from storage
      *
      * @param  array    $ids
-     * @param  array    $with
      * @return Collection
      */
-    public function findMany($ids, array $with = []);
+    public function findMany($ids);
 
     /**
      * Find a model by its primary key or throw an exception.
      *
      * @param  mixed    $id
-     * @param  array    $with
      * @return \App\BFX\Model
      *
      * @throws RuntimeException
      */
-    public function findOrFail($id, array $with = []);
+    public function findOrFail($id);
  
     /**
      * Get a set of Models by attribute value
      *
      * @param   string  $column
      * @param   string  $value
-     * @param   array   $with
      * @param   array   $columns
      * @return mixed
      */
-    public function findBy($column, $value, array $with = [], array $columns = ['*']);
+    public function findBy($column, $value, array $columns = ['*']);
 
     /**
      * Create and save a new Model in storage
@@ -135,4 +130,13 @@ interface BaseRepository
      * @return bool
      */
     public function delete(Model $model);
+
+
+    /**
+     * Begin querying a model with eager loading.
+     *
+     * @param  array|string  $relations
+     * @return \Illuminate\Database\Eloquent\Builder|static
+     */
+    public static function with($relations);
 }

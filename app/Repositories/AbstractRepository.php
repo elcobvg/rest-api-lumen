@@ -16,6 +16,13 @@ abstract class AbstractRepository implements BaseRepository
     protected $model;
 
     /**
+     * The relations to eager load.
+     *
+     * @var array
+     */
+    protected $with = [];
+
+    /**
      * @inheritdoc
      */
     public function __construct(Model $model)
@@ -42,10 +49,10 @@ abstract class AbstractRepository implements BaseRepository
     /**
      * @inheritdoc
      */
-    public function get(array $with = [], array $columns = [])
+    public function get(array $columns = ['*'])
     {
-        if (sizeof($with)) {
-            return $this->model->with(join(', ', $with))->get($columns);
+        if ($this->with) {
+            return $this->model->with($this->with)->get($columns);
         }
         return $this->model->get($columns);
     }
@@ -53,10 +60,10 @@ abstract class AbstractRepository implements BaseRepository
     /**
      * @inheritdoc
      */
-    public function find($id, array $with = [])
+    public function find($id)
     {
-        if (sizeof($with)) {
-            return $this->model->with(join(', ', $with))->find($id);
+        if ($this->with) {
+            return $this->model->with($this->with)->find($id);
         }
         return $this->model->find($id);
     }
@@ -64,21 +71,21 @@ abstract class AbstractRepository implements BaseRepository
     /**
      * @inheritdoc
      */
-    public function findMany($ids, array $with = [])
+    public function findMany($ids)
     {
-        if (sizeof($with)) {
-            return $this->model->with(join(', ', $with))->findMany($id);
+        if ($this->with) {
+            return $this->model->with($this->with)->findMany($ids);
         }
-        return $this->model->findMany($id);
+        return $this->model->findMany($ids);
     }
 
     /**
      * @inheritdoc
      */
-    public function findOrFail($id, array $with = [])
+    public function findOrFail($id)
     {
-        if (sizeof($with)) {
-            return $this->model->with(join(', ', $with))->findOrFail($id);
+        if ($this->with) {
+            return $this->model->with($this->with)->findOrFail($id);
         }
         return $this->model->findOrFail($id);
     }
@@ -86,10 +93,10 @@ abstract class AbstractRepository implements BaseRepository
     /**
      * @inheritdoc
      */
-    public function findBy($column, $value, array $with = [], array $columns = [])
+    public function findBy($column, $value, array $columns = [])
     {
-        if (sizeof($with)) {
-            return $this->model->with(join(', ', $with))->where($column, $value)->first($columns);
+        if ($this->with) {
+            return $this->model->with($this->with)->where($column, $value)->first($columns);
         }
         return $this->model->where($column, $value)->first($columns);
     }
@@ -150,5 +157,23 @@ abstract class AbstractRepository implements BaseRepository
     public function delete(Model $model)
     {
         return $model->delete();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function with($relations)
+    {
+        $this->with = is_string($relations) ? func_get_args() : $relations;
+        return $this;
+    }
+
+    /**
+     * Get array of relations to be loaded
+     * @return array
+     */
+    public function getRelations()
+    {
+        return $this->with;
     }
 }

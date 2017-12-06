@@ -44,7 +44,7 @@ abstract class CachedRepository implements BaseRepository
      */
     public function all(array $columns = ['*'])
     {
-        return Cache::remember($this->resourceType, $this->minutes, function () use ($columns) {
+        return Cache::remember($this->cacheKey(), $this->minutes, function () use ($columns) {
             return $this->repository->all($columns);
         });
     }
@@ -54,7 +54,7 @@ abstract class CachedRepository implements BaseRepository
      */
     public function paginate($page = 1, array $columns = ['*'])
     {
-        $key = $this->resourceType . ':page' . $page;
+        $key = $this->cacheKey() . ':page' . $page;
         return Cache::remember($key, $this->minutes, function () use ($page, $columns) {
             return $this->repository->paginate($page, $columns);
         });
@@ -63,56 +63,49 @@ abstract class CachedRepository implements BaseRepository
     /**
      * @inheritdoc
      */
-    public function get(array $with = [], array $columns = ['*'])
+    public function get(array $columns = ['*'])
     {
-        if (sizeof($with)) {
-            return $this->model->with(join(', ', $with))->get($columns);
-        }
-        return $this->model->get($columns);
+        return Cache::remember($this->cacheKey(), $this->minutes, function () use ($columns) {
+            return $this->repository->get($columns);
+        });
     }
 
     /**
      * @inheritdoc
      */
-    public function find($id, array $with = [])
+    public function find($id)
     {
-        if (sizeof($with)) {
-            return $this->model->with(join(', ', $with))->find($id);
-        }
-        return $this->model->find($id);
+        $key = $this->cacheKey() . '-id:' . $id;
+        return Cache::remember($key, $this->minutes, function () use ($id) {
+            return $this->repository->find($id);
+        });
     }
 
     /**
      * @inheritdoc
      */
-    public function findMany($ids, array $with = [])
+    public function findMany($ids)
     {
-        if (sizeof($with)) {
-            return $this->model->with(join(', ', $with))->findMany($id);
-        }
-        return $this->model->findMany($id);
+        $key = $this->cacheKey() . '-ids:' . implode(':', $ids);
+        return Cache::remember($key, $this->minutes, function () use ($ids) {
+            return $this->repository->findMany($ids);
+        });
     }
 
     /**
      * @inheritdoc
      */
-    public function findOrFail($id, array $with = [])
+    public function findOrFail($id)
     {
-        if (sizeof($with)) {
-            return $this->model->with(join(', ', $with))->findOrFail($id);
-        }
-        return $this->model->findOrFail($id);
+        return $this->repository->findOrFail($id);
     }
  
     /**
      * @inheritdoc
      */
-    public function findBy($column, $value, array $with = [], array $columns = ['*'])
+    public function findBy($column, $value, array $columns = ['*'])
     {
-        if (sizeof($with)) {
-            return $this->model->with(join(', ', $with))->where($column, $value)->first($columns);
-        }
-        return $this->model->where($column, $value)->first($columns);
+        return $this->repository->findBy($column, $value, $columns);
     }
 
     /**
@@ -120,7 +113,7 @@ abstract class CachedRepository implements BaseRepository
      */
     public function create(array $attributes)
     {
-        return $this->save($attributes);
+        return $this->repository->create($attributes);
     }
 
     /**
@@ -128,7 +121,7 @@ abstract class CachedRepository implements BaseRepository
      */
     public function save(array $data)
     {
-        return $this->model->create($data);
+        return $this->repository->save($attributes);
     }
 
     /**
@@ -136,7 +129,7 @@ abstract class CachedRepository implements BaseRepository
      */
     public function update(array $attributes, $id)
     {
-        return $this->model->whereKey($id)->update($attributes);
+        return $this->repository->update($attributes, $id);
     }
 
     /**
@@ -144,7 +137,7 @@ abstract class CachedRepository implements BaseRepository
      */
     public function updateWhere(array $attributes, $column, $value)
     {
-        return $this->model->where($column, $value)->update($attributes);
+        return $this->repository->updateWhere($attributes, $column, $value);
     }
 
     /**
@@ -152,8 +145,7 @@ abstract class CachedRepository implements BaseRepository
      */
     public function deleteById($id, $force = false)
     {
-        return $force   ? $this->model->find($id)->forceDelete()
-                        : $this->model->find($id)->delete();
+        return $this->repository->deleteById($id, $force);
     }
 
     /**
@@ -161,8 +153,7 @@ abstract class CachedRepository implements BaseRepository
      */
     public function deleteWhere($column, $value, $force = false)
     {
-        return $force   ? $this->model->where($column, $value)->forceDelete()
-                        : $this->model->where($column, $value)->delete();
+        return $this->repository->deleteWhere($column, $value, $force);
     }
 
     /**
@@ -170,6 +161,27 @@ abstract class CachedRepository implements BaseRepository
      */
     public function delete(Model $model)
     {
-        return $model->delete();
+        return $this->repository->delete($model);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function with($relations)
+    {
+        return $this->repository->with($relations);
+    }
+
+    /**
+     * Make cache key with relation attributes
+     *
+     */
+    protected function cacheKey()
+    {
+        $key = $this->resourceType;
+        if ($with = $this->repository->getRelations()) {
+            $key .= '-with:' . implode(':', $with);
+        }
+        return $key;
     }
 }

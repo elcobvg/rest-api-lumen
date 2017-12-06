@@ -133,10 +133,10 @@ interface BaseRepository
 
 
     /**
-     * Begin querying a model with eager loading.
+     * Query the resource repository with eager loading.
      *
      * @param  array|string  $relations
-     * @return \Illuminate\Database\Eloquent\Builder|static
+     * @return $this
      */
-    public static function with($relations);
+    public function with($relations);
 }

@@ -54,7 +54,7 @@ abstract class CachedRepository implements BaseRepository
      */
     public function paginate($page = 1, array $columns = ['*'])
     {
-        $key = $this->cacheKey() . ':page' . $page;
+        $key = $this->cacheKey() . ':page:' . $page;
         return Cache::remember($key, $this->minutes, function () use ($page, $columns) {
             return $this->repository->paginate($page, $columns);
         });
@@ -75,7 +75,7 @@ abstract class CachedRepository implements BaseRepository
      */
     public function find($id)
     {
-        $key = $this->cacheKey() . '-id:' . $id;
+        $key = $this->cacheKey() . ':id:' . $id;
         return Cache::remember($key, $this->minutes, function () use ($id) {
             return $this->repository->find($id);
         });
@@ -86,7 +86,7 @@ abstract class CachedRepository implements BaseRepository
      */
     public function findMany($ids)
     {
-        $key = $this->cacheKey() . '-ids:' . implode(':', $ids);
+        $key = $this->cacheKey() . ':ids:' . implode(':', $ids);
         return Cache::remember($key, $this->minutes, function () use ($ids) {
             return $this->repository->findMany($ids);
         });
@@ -167,7 +167,7 @@ abstract class CachedRepository implements BaseRepository
     /**
      * @inheritdoc
      */
-    public static function with($relations)
+    public function with($relations)
     {
         return $this->repository->with($relations);
     }
@@ -180,7 +180,7 @@ abstract class CachedRepository implements BaseRepository
     {
         $key = $this->resourceType;
         if ($with = $this->repository->getRelations()) {
-            $key .= '-with:' . implode(':', $with);
+            $key .= ':with:' . implode(':', $with);
         }
         return $key;
     }

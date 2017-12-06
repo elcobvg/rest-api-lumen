@@ -162,7 +162,7 @@ abstract class AbstractRepository implements BaseRepository
     /**
      * @inheritdoc
      */
-    public static function with($relations)
+    public function with($relations)
     {
         $this->with = is_string($relations) ? func_get_args() : $relations;
         return $this;

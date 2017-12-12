@@ -29,9 +29,6 @@ class UserRepository extends AbstractRepository implements UserRepositoryContrac
 
         $user = parent::save($data);
 
-        // fire user created event
-        \Event::fire(new UserCreatedEvent($user));
-
         return $user;
     }
 }

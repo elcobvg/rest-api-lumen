@@ -23,12 +23,12 @@ class RepositoriesServiceProvider extends \Illuminate\Support\ServiceProvider
     public function register()
     {
         // Option 1. Use caching at controller level. Use CachingController as base class
-        // $this->app->bind('App\Repositories\Contracts\UserRepository', UserRepository::class);
+        $this->app->bind('App\Repositories\Contracts\UserRepository', UserRepository::class);
 
         // Option 2. Use caching at repository level
-        $this->app->singleton('App\Repositories\Contracts\UserRepository', function () {
-            return new CachedUserRepository(new UserRepository(new User));
-        });
+        // $this->app->singleton('App\Repositories\Contracts\UserRepository', function () {
+        //    return new CachedUserRepository(new UserRepository(new User));
+        // });
     }
 
     /**

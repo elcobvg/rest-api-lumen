@@ -38,7 +38,7 @@ class Model extends Eloquent
     /**
      * Create a new Eloquent query builder for the model.
      *
-     * @param  \Illuminate\Database\Query\Builder  $query
+     * @param  \Jenssegers\Mongodb\Query\Builder  $query
      * @return \App\Extensions\Builder|static
      */
     public function newEloquentBuilder($query)

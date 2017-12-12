@@ -88,11 +88,20 @@ interface BaseRepository
     /**
      * Update a Model with new data
      *
+     * @param  Model    $model
+     * @param  array    $attributes
+     * @return bool
+     */
+    public function update(Model $model, array $attributes);
+
+    /**
+     * Update a Model with new data by id
+     *
      * @param  array    $attributes
      * @param  mixed    $id
      * @return bool
      */
-    public function update(array $attributes, $id);
+    public function updateById(array $attributes, $id);
 
     /**
      * Update Models with new data, by a where condition

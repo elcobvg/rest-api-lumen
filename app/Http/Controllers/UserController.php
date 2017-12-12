@@ -8,7 +8,7 @@ use App\Repositories\Contracts\UserRepository;
 
 use Illuminate\Http\Request;
 
-class UserController extends Controller
+class UserController extends CachingController
 {
     /**
      * Constructor
@@ -41,16 +41,6 @@ class UserController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -58,7 +48,31 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        if ($errors = $this->validate($request, [
+            'email'         => 'email|required|unique:users',
+            'firstName'     => 'required|max:100',
+            'middleName'    => 'max:50',
+            'lastName'      => 'required|max:100',
+            'username'      => 'max:50',
+            'address'       => 'max:255',
+            'zipCode'       => 'max:10',
+            'phone'         => 'max:20',
+            'mobile'        => 'max:20',
+            'city'          => 'max:100',
+            'state'         => 'max:100',
+            'country'       => 'max:100',
+            'password'      => 'min:8'
+        ])) {
+            return $this->sendInvalidFieldResponse($errors);
+        }
+
+        $user = $this->repository->save($request->all());
+
+        if (!$user instanceof User) {
+            return $this->sendCustomResponse(500, 'Error occurred on creating User');
+        }
+
+        return $this->setStatusCode(201)->respondWithItem($user);
     }
 
     /**
@@ -75,21 +89,7 @@ class UserController extends Controller
             return $this->sendNotFoundResponse("The user with id {$id} doesn't exist");
         }
 
-        // Authorization
-        // $this->authorize('show', $user);
-
         return $this->respondWithItem($user);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
     }
 
     /**
@@ -101,7 +101,36 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        if ($errors = $this->validate($request, [
+            'email'         => 'email|unique:users',
+            'firstName'     => 'max:100',
+            'middleName'    => 'max:50',
+            'lastName'      => 'max:100',
+            'username'      => 'max:50',
+            'address'       => 'max:255',
+            'zipCode'       => 'max:10',
+            'phone'         => 'max:20',
+            'mobile'        => 'max:20',
+            'city'          => 'max:100',
+            'state'         => 'max:100',
+            'country'       => 'max:100',
+            'password'      => 'min:8'
+        ])) {
+            return $this->sendInvalidFieldResponse($errors);
+        }
+
+        $user = $this->repository->find($id);
+
+        if (!$user instanceof User) {
+            return $this->sendNotFoundResponse("The user with id {$id} doesn't exist");
+        }
+
+        // Authorization
+        $this->authorize('update', $user);
+
+        $user = $this->repository->update($user, $request->all());
+
+        return $this->respondWithItem($user);
     }
 
     /**
@@ -112,7 +141,18 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $user = $this->repository->find($id);
+
+        if (!$user instanceof User) {
+            return $this->sendNotFoundResponse("The user with id {$id} doesn't exist");
+        }
+
+        // Authorization
+        $this->authorize('destroy', $user);
+
+        $this->repository->delete($user);
+
+        return response()->json(null, 204);
     }
 
     /**
@@ -142,7 +182,7 @@ class UserController extends Controller
         }
 
         if ($user instanceof User) {
-            // user with basic role can only request for basic scope
+            // User with basic role can only request for basic scope
             if ($user->role === User::BASIC_ROLE) {
                 $request->request->add(['scope' => 'basic']);
             }
@@ -153,7 +193,7 @@ class UserController extends Controller
 
         $tokenRequest = $request->create('/oauth/token', 'post', $request->all());
 
-        // forward the request to the oauth token request endpoint
+        // Forward the request to the Oauth token request endpoint
         return app()->dispatch($tokenRequest);
     }
 }

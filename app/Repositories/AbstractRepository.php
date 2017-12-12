@@ -120,7 +120,15 @@ abstract class AbstractRepository implements BaseRepository
     /**
      * @inheritdoc
      */
-    public function update(array $attributes, $id)
+    public function update(Model $model, array $attributes)
+    {
+        return $model->update($attributes);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function updateById(array $attributes, $id)
     {
         return $this->model->whereKey($id)->update($attributes);
     }

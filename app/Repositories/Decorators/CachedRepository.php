@@ -120,7 +120,15 @@ abstract class CachedRepository implements BaseRepository
     /**
      * @inheritdoc
      */
-    public function update(array $attributes, $id)
+    public function update(Model $model, array $attributes)
+    {
+        return $this->repository->update($model, $attributes);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function updateById(array $attributes, $id)
     {
         return $this->repository->update($attributes, $id);
     }

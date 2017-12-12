@@ -2,9 +2,8 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
 use App\Extensions\Passport;
-use App\Extensions\LengthAwarePaginator;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -15,13 +14,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        // $this->app->bind('Illuminate\Contracts\Pagination\LengthAwarePaginator', LengthAwarePaginator::class);
-        $this->app->when(\Jenssegers\Mongodb\Eloquent\Builder::class)
-            ->needs(\Illuminate\Pagination\Paginator::class)
-            ->give(function () {
-                return \App\Extensions\LengthAwarePaginator::class;
-            });
-
         // Passport::ignoreMigrations();
     }
 }

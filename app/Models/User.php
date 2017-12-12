@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Extensions\Model;
 use Illuminate\Auth\Authenticatable;
 use Laravel\Lumen\Auth\Authorizable;
 use Jenssegers\Mongodb\Eloquent\SoftDeletes;

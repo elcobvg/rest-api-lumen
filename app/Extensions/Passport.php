@@ -2,10 +2,6 @@
 
 namespace App\Extensions;
 
-use Mockery;
-use DateInterval;
-use Carbon\Carbon;
-use DateTimeInterface;
 use Illuminate\Support\Facades\Route;
 
 class Passport extends \MoeenBasra\LaravelPassportMongoDB\Passport

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Extensions;
 
 use Jenssegers\Mongodb\Eloquent\Model as Eloquent;
 
@@ -29,10 +29,9 @@ class Model extends Eloquent
     {
         $class = get_called_class();
         $object = new $class;
-        foreach ($object->fillable as $attribute) {
-            $object->{$attribute} = $array['attributes'][$attribute];
+        foreach ($array['attributes'] as $key => $value) {
+            $object->{$key} = $value;
         }
-        $object->_id = $array['attributes']['_id'];
         return $object;
     }
 
@@ -44,6 +43,6 @@ class Model extends Eloquent
      */
     public function newEloquentBuilder($query)
     {
-        return new \App\Extensions\Builder($query);
+        return new Builder($query);
     }
 }

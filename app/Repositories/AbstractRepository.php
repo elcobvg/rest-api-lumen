@@ -176,4 +176,13 @@ abstract class AbstractRepository implements BaseRepository
     {
         return $this->with;
     }
+
+    /**
+     * Get the resource type
+     * @return  string
+     */
+    public function resourceType()
+    {
+        return kebab_case(str_plural(class_basename($this->model)));
+    }
 }

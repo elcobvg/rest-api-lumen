@@ -14,15 +14,15 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Laravel\Lumen\Routing\Controller as BaseController;
 
-class Controller extends BaseController
+abstract class Controller extends BaseController
 {
     /**
-     * Expiration time of cache in minutes
+     * The resource repository implementation.
      *
-     * @var integer
+     * @var repository
      */
-    protected $minutes;
-    
+    protected $repository;
+
     /**
      * TransformerAbstract implementation
      *
@@ -58,7 +58,6 @@ class Controller extends BaseController
      */
     public function __construct(TransformerAbstract $transformer)
     {
-        $this->minutes = config('cache.expiration');
         $this->transformer = $transformer;
         $this->setFractal(new Manager);
     }
@@ -190,6 +189,18 @@ class Controller extends BaseController
      */
     protected function respondWithCollection($collection)
     {
+        $data = $this->createDataCollection($collection);
+        return $this->respondWithArray($data);
+    }
+
+    /**
+     * Create response data from collection of models
+     *
+     * @param array|LengthAwarePaginator|\Illuminate\Database\Eloquent\Collection $collection
+     * @return  array
+     */
+    protected function createDataCollection($collection)
+    {
         $resource = new Collection($collection, $this->transformer, $this->resourceType);
 
         if ($collection instanceof LengthAwarePaginator) {
@@ -200,9 +211,8 @@ class Controller extends BaseController
             }
             $resource->setPaginator(new IlluminatePaginatorAdapter($collection));
         }
-        $rootScope = $this->fractal->createData($resource);
 
-        return $this->respondWithArray($rootScope->toArray());
+        return $this->fractal->createData($resource)->toArray();
     }
 
     /**
@@ -211,12 +221,22 @@ class Controller extends BaseController
      * @param Model $item
      * @return \Illuminate\Http\JsonResponse
      */
-    protected function respondWithItem($item)
+    protected function respondWithItem(Model $item)
+    {
+        $data = $this->createDataItem($item);
+        return $this->respondWithArray($data);
+    }
+
+    /**
+     * Create response data from a single model
+     *
+     * @param Model $item
+     * @return  array
+     */
+    protected function createDataItem(Model $item)
     {
         $resource = new Item($item, $this->transformer, $this->resourceType);
-        $rootScope = $this->fractal->createData($resource);
-
-        return $this->respondWithArray($rootScope->toArray());
+        return $this->fractal->createData($resource)->toArray();
     }
 
     /**

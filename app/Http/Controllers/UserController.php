@@ -5,27 +5,21 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Transformers\UserTransformer;
 use App\Repositories\Contracts\UserRepository;
+
 use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
-    /**
-     * The user repository implementation.
-     *
-     * @var users
-     */
-    protected $users;
-
     /**
      * Constructor
      *
      * @param UserRepository $users
      * @param UserTransformer $transformer
      */
-    public function __construct(UserRepository $users, UserTransformer $transformer)
+    public function __construct(UserRepository $repository, UserTransformer $transformer)
     {
-        $this->users = $users;
-        $this->resourceType = 'users';
+        $this->repository = $repository;
+        $this->resourceType = $this->repository->resourceType();
         parent::__construct($transformer);
     }
 
@@ -41,9 +35,9 @@ class UserController extends Controller
             if ($errors = $this->validate($request, ['page' => 'integer'])) {
                 return $this->sendInvalidFieldResponse($errors);
             }
-            return $this->respondWithCollection($this->users->paginate($request->page));
+            return $this->respondWithCollection($this->repository->paginate($request->page));
         }
-        return $this->respondWithCollection($this->users->all());
+        return $this->respondWithCollection($this->repository->all());
     }
 
     /**
@@ -75,7 +69,7 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        $user = $this->users->find($id);
+        $user = $this->repository->find($id);
 
         if (!$user instanceof User) {
             return $this->sendNotFoundResponse("The user with id {$id} doesn't exist");
@@ -131,24 +125,33 @@ class UserController extends Controller
      */
     public function createAccessToken(Request $request)
     {
-        $inputs = $request->all();
+        if ($errors = $this->validate($request, [
+            'grant_type'    => 'required|alpha',
+            'client_id'     => 'required|alpha_num',
+            'client_secret' => 'required|alpha_num',
+            'username'      => 'required|email',
+            'password'      => 'required|string|min:8',
+            'scope'         => 'alpha',
+        ])) {
+            return $this->sendInvalidFieldResponse($errors);
+        }
 
         $user = null;
-        if (isset($inputs['username']) && $inputs['grant_type'] == 'password') {
-            $user = $this->users->findOneBy(['email' => $inputs['username']]);
+        if ($request->username && $request->grant_type === 'password') {
+            $user = $this->repository->findBy('email', $request->username);
         }
 
         if ($user instanceof User) {
             // user with basic role can only request for basic scope
             if ($user->role === User::BASIC_ROLE) {
-                $inputs['scope'] = 'basic';
+                $request->request->add(['scope' => 'basic']);
             }
         } else {
             // client_credentials grant can only request for basic scope
-            $inputs['scope'] = 'basic';
+            $request->request->add(['scope' => 'basic']);
         }
 
-        $tokenRequest = $request->create('/oauth/token', 'post', $inputs);
+        $tokenRequest = $request->create('/oauth/token', 'post', $request->all());
 
         // forward the request to the oauth token request endpoint
         return app()->dispatch($tokenRequest);

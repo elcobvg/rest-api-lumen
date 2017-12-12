@@ -9,7 +9,7 @@
         "appzcoder/lumen-routes-list": "^1.0",
         "barryvdh/laravel-cors": "^0.10.0",
         "dusterio/lumen-passport": "^0.2.4",
-        "elcobvg/laravel-opcache": "^0.2.2",
+        "elcobvg/laravel-opcache": "^0.3.0",
         "illuminate/mail": "^5.5",
         "illuminate/redis": "^5.5",
         "jenssegers/mongodb": "^3.3",

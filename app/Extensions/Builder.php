@@ -3,7 +3,6 @@
 namespace App\Extensions;
 
 use Illuminate\Container\Container;
-use App\Extensions\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 
 class Builder extends EloquentBuilder

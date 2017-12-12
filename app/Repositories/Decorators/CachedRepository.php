@@ -24,13 +24,6 @@ abstract class CachedRepository implements BaseRepository
     protected $repository;
 
     /**
-     * The type of the resource
-     *
-     * @var string
-     */
-    protected $resourceType;
-
-    /**
      * @inheritdoc
      */
     public function __construct(BaseRepository $repository)
@@ -178,10 +171,19 @@ abstract class CachedRepository implements BaseRepository
      */
     protected function cacheKey()
     {
-        $key = $this->resourceType;
+        $key = $this->resourceType();
         if ($with = $this->repository->getRelations()) {
             $key .= ':with:' . implode(':', $with);
         }
         return $key;
+    }
+
+    /**
+     * Get the resource type
+     * @return  string
+     */
+    public function resourceType()
+    {
+        return $this->repository->resourceType();
     }
 }

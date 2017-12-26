@@ -1,12 +1,17 @@
 # Lumen REST API with MongoDB, OAuth2 and JSON API
-REST API boilerplate for Lumen micro-framework with MongoDB database. 
-Implements JSON API and OAuth2 authentication.
-Lightweight and super-fast due to leveraging PHP OPcache for caching data output.
+- REST API boilerplate for Lumen micro-framework with MongoDB database. 
+- Implements JSON API and OAuth2 authentication.
+- Lightweight and super-fast due to leveraging PHP OPcache for caching data output.
 
 ## Installation
 
-Clone this repo: `git clone https://github.com/elcobvg/rest-api-lumen.git your-project`. Enter your project directory `cd your-project` and run `composer install`.
-Run the migrations `php artisan migrate` and install Passport OAuth2: `php artisan passport:install`
+- `git clone https://github.com/elcobvg/rest-api-lumen.git`
+- `cd rest-api-lumen`
+- `cp .env.example .env`
+- `composer install`
+- Edit `.env` and set your MongoDB connection details
+- `php artisan migrate`
+- `php artisan passport:install`
 
 ### References
 - [Lumen micro-framework](https://lumen.laravel.com/)
